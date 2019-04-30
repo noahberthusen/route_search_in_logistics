@@ -87,6 +87,6 @@ class OnlineLogProbability(object):
     def __len__(self):
         return len(self.d)
 
-    def iteritems(self):
+    def items(self):
         for x in self.d:
             yield x, self[x]

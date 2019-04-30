@@ -35,7 +35,7 @@ def createMap(configuration, state, tracep):
     agentType=configuration['agent']['id']
     terrainMap[state['prev_pos'][0]][state['prev_pos'][1]][3]['agent']= agentType
     
-    for tilekey, tiledict in configuration['maptiles'].iteritems():
+    for tilekey, tiledict in configuration['maptiles'].items():
         if 'num' in tiledict:
             terrainMap = fillMap(configuration, terrainMap, tiledict)
     return terrainMap
@@ -80,7 +80,7 @@ def printMap(terrainMap, configuration, images, screen, state, tracep ,show_text
             image = None
             
             
-            for tilekey, tiledict in configuration['maptiles'].iteritems():
+            for tilekey, tiledict in configuration['maptiles'].items():
                 if tiledict['id'] == terrainMap[i][j][0]:
                     imState = terrainMap[i][j][3]['image']
                     image = images[tilekey][imState]
@@ -129,7 +129,7 @@ def printableMap(terrainMap, configuration, screenp):
                 y = configuration['map_size'][1] - j - 1
             else: y = j
             
-            for tilekey, tiledict in configuration['maptiles'].iteritems():
+            for tilekey, tiledict in configuration['maptiles'].items():
                 if terrainMap[i][y][0] == tiledict['id']:
                     s += tiledict['marker']
         s = s + '\n'
@@ -137,12 +137,12 @@ def printableMap(terrainMap, configuration, screenp):
 
 def readMap(configuration):
     map_file= configuration['file']
-    for tilekey, tiledict in configuration['maptiles'].iteritems():
+    for tilekey, tiledict in configuration['maptiles'].items():
         if 'num' in tiledict:
             tiledict['num'] = 0
     
     allowed = configuration["agent"]["marker"]
-    for tilekey, tiledict in configuration["maptiles"].iteritems():
+    for tilekey, tiledict in configuration["maptiles"].items():
         allowed += tiledict['marker']
     
     allowed = "([" + allowed + "]*)\n?"
@@ -175,7 +175,7 @@ def readMap(configuration):
                 terrainMap[row][column][0] = configuration["maptiles"][basicTile["id"]]["id"]
                 configuration["agent"]["start"] = [row,column]
             else:
-                for tilekey, tiledict in configuration['maptiles'].iteritems():
+                for tilekey, tiledict in configuration['maptiles'].items():
                     if char == tiledict['marker']:
                         terrainMap[row][column][0] = tiledict['id']
                         if 'num' in tiledict.keys():

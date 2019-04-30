@@ -29,15 +29,48 @@ class GameProblem(SearchProblem):
     def actions(self, state):
         '''Returns a LIST of the actions that may be executed in this state
         '''
-        acciones = []
-        
-        return acciones
+        # states: (x, y, num_pizzas, num_orders)
+        actions = []
+        map_size = self.CONFIG['map_size']
+
+        # CHECK NORTH
+        if (state[1] - 1 >= 0 and not self.getAttribute((state[0], state[1] - 1), 'blocked')):
+            actions.append('North')
+        # CHECK EAST
+        if (state[0] + 1 < map_size[0] and not self.getAttribute((state[0] + 1, state[1]), 'blocked')):
+            actions.append('East')
+        # CHECK SOUTH
+        if (state[1] + 1 < map_size[1] and not self.getAttribute((state[0], state[1] + 1), 'blocked')):
+            actions.append('South')
+        # CHECK WEST
+        if (state[0] - 1 >= 0 and not self.getAttribute((state[0] - 1, state[1]), 'blocked')):
+            actions.append('West')
+        # CHECK LOAD
+        if (self.getAttribute((state[0], state[1]), 'load') and state[2] < self.MAXBAGS):
+            actions.append('Load')
+        # CHECK UNLOAD
+        if (self.getAttribute((state[0], state[1]), 'unload') and state[3] > 0 and state[2] > 0):
+            actions.append('Unload')
+
+        return actions
     
 
     def result(self, state, action):
         '''Returns the state reached from this state when the given action is executed
         '''
-        next_state = 0
+        next_state = None
+        if (action == 'North'):
+            next_state = (state[0], state[1] - 1, state[2], state[3])
+        elif (action == 'East'):
+            next_state = (state[0] + 1, state[1], state[2], state[3])
+        elif (action == 'South'):
+            next_state = (state[0], state[1] + 1, state[2], state[3])
+        elif (action == 'West'):
+            next_state = (state[0] - 1, state[1], state[2], state[3])
+        elif (action == 'Load'):
+            next_state = (state[0], state[1], state[2] + 1, state[3])
+        elif (action == 'Unload'):
+            next_state = (state[0], state[1], state[2] - 1, state[3] - 1)
 
         return next_state
 
@@ -45,7 +78,10 @@ class GameProblem(SearchProblem):
     def is_goal(self, state):
         '''Returns true if state is the final state
         '''
-        return True
+        if (state[0] == self.GOAL[0] and state[1] == self.GOAL[1] and state[3] == 0):
+            return True
+        else:
+            return False
 
     def cost(self, state, action, state2):
         '''Returns the cost of applying `action` from `state` to `state2`.
@@ -57,7 +93,32 @@ class GameProblem(SearchProblem):
     def heuristic(self, state):
         '''Returns the heuristic for `state`
         '''
-        return 0
+        def manhattan(pos1, pos2):
+            '''Returns the manhattan distance between two locations
+            '''
+            return (abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1]))
+
+        heuristic = 0
+        bike = (state[0], state[1])
+        goal = (self.GOAL[0], self.GOAL[1])
+        pizza = self.POSITIONS['pizza'][0]
+        if 'customer2' in self.POSITIONS:
+            customer = self.POSITIONS['customer2'][0]
+        elif 'customer1' in self.POSITIONS:
+            customer = self.POSITIONS['customer1'][0]
+
+        # distance to pizza
+        # distance to customer
+        if (state[3] != 0):
+            heuristic += manhattan(bike, pizza)
+            heuristic += manhattan(bike, customer)
+            heuristic += state[3] * 2
+        
+        # distance to home
+        if (state[3] == 0):
+            heuristic += manhattan(goal, customer)
+        
+        return heuristic
 
 
     def setup (self):
@@ -68,12 +129,21 @@ class GameProblem(SearchProblem):
            It also must set the values of the object attributes that the methods need, as for example, self.SHOPS or self.MAXBAGS
         '''
 
-        print '\nMAP: ', self.MAP, '\n'
-	print 'POSITIONS: ', self.POSITIONS, '\n'
-	print 'CONFIG: ', self.CONFIG, '\n'
+        print('\nMAP: ', self.MAP, '\n')
+        print('POSITIONS: ', self.POSITIONS, '\n')
+        print('CONFIG: ', self.CONFIG, '\n')
+        
+        # (x, y, num_pizzas, num_orders) 
+        # this num_orders would change for the harder portion of the assignment
+        if 'customer2' in self.POSITIONS:
+            num_orders = 2
+        elif 'customer1' in self.POSITIONS:
+            num_orders = 1
 
-        initial_state = None
-        final_state= None
+        initial_state = (self.AGENT_START[0], self.AGENT_START[1], 0, num_orders)
+        final_state= (self.AGENT_START[0], self.AGENT_START[1], None, 0)
+
+        self.MAXBAGS = self.CONFIG['maxBags']
         algorithm= simpleai.search.astar
         #algorithm= simpleai.search.breadth_first
         #algorithm= simpleai.search.depth_first
@@ -84,7 +154,7 @@ class GameProblem(SearchProblem):
     def printState (self,state):
         '''Return a string to pretty-print the state '''
         
-        pps=''
+        pps='Location: (' + str(state[0]) + ', ' + str(state[1]) + ')  Pizzas in bag: ' + str(state[2]) + '  Orders left: ' + str(state[3])
         return (pps)
 
     def getPendingRequests (self,state):
@@ -116,7 +186,7 @@ class GameProblem(SearchProblem):
     def getStateData (self,state):
         stateData={}
         pendingItems=self.getPendingRequests(state)
-        if pendingItems >= 0:
+        if pendingItems is None or pendingItems >= 0:
             stateData['newType']='customer{}'.format(pendingItems)
         return stateData
         

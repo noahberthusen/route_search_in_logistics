@@ -45,7 +45,7 @@ configuration = {
         "state":
             {"agent":None,"image": "default"},
         "attributes":
-            {"cost": 1},
+            {"cost": 1, "load": True},
         },
     "customer0": {
         "graphics":{ 

@@ -66,7 +66,7 @@ def initGame():
     
     # Set images
     rawImages = dict()
-    for tilekey, tiledict in configuration['maptiles'].iteritems():
+    for tilekey, tiledict in configuration['maptiles'].items():
         rawImages[tilekey]= tiledict['graphics']
     rawImages['agent']= configuration['agent']['graphics']
     

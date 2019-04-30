@@ -131,7 +131,7 @@ class NaiveBayes(Classifier):
             logprob = logprob - Z
         else:  # Something not at all seen in training, return best a priori
             logprob, best = max((p, class_) for class_, p
-                                            in self.C.iteritems())
+                                            in self.C.items())
         p = numpy.exp(logprob)
         assert 0.0 <= p and p <= 1.0
         return best, p
