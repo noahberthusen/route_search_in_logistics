@@ -18,7 +18,7 @@ configuration = {
         },
     "id": "agent",
     "marker": 'A',
-    "start": [0,0],
+    "start": [7,0],
     },
 "maptiles": {
     "street": {

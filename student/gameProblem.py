@@ -110,13 +110,15 @@ class GameProblem(SearchProblem):
         # distance to pizza
         # distance to customer
         if (state[3] != 0):
-            heuristic += manhattan(bike, pizza)
+            if (state[2] == 0):
+                heuristic += manhattan(bike, pizza)
+                heuristic += state[3]
             heuristic += manhattan(bike, customer)
-            heuristic += state[3] * 2
-        
-        # distance to home
-        if (state[3] == 0):
+            heuristic += state[3]
             heuristic += manhattan(goal, customer)
+        else:
+            heuristic += manhattan(goal, bike)
+            
         
         return heuristic
 
@@ -162,7 +164,10 @@ class GameProblem(SearchProblem):
             MUST return None if the position is not a customer.
             This information is used to show the proper customer image.
         '''
-        return None
+        if (self.getAttribute((state[0], state[1]), 'unload')):
+            return state[3]
+        else:
+            return None
 
     # -------------------------------------------------------------- #
     # --------------- DO NOT EDIT BELOW THIS LINE  ----------------- #
