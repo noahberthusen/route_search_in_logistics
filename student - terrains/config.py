@@ -136,7 +136,7 @@ configuration = {
         "state":
             {"agent":None,"image": "default"},
         "attributes":
-            {"cost": 2},
+            {"cost": 12},
         },
     "forest": {
         "graphics":{ 
